@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StreamSync Recommendation</title>
+
+  <meta property="og:title" content="You've got a StreamSync recommendation" />
+  <meta property="og:description" content="Someone sent you a show or movie to check out." />
+  <meta property="og:image" content="https://gregdilley-sync.github.io/streamsync-privacy/icon512.png" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary" />
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: #0d1e2e;
+      color: #e0e0e0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .card {
+      max-width: 420px;
+      width: 100%;
+      text-align: center;
+    }
+    .logo {
+      font-size: 22px;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: -0.5px;
+      margin-bottom: 28px;
+    }
+    .logo span { color: #7dd6f8; }
+    .from {
+      color: #7dd6f8;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 14px;
+    }
+    .poster {
+      width: 140px;
+      height: 210px;
+      border-radius: 12px;
+      object-fit: cover;
+      background: #1e2e3e;
+      margin: 0 auto 20px;
+      display: block;
+    }
+    .title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 6px;
+    }
+    .meta {
+      font-size: 14px;
+      color: #999;
+      margin-bottom: 20px;
+    }
+    .message {
+      background: #15263a;
+      border: 1px solid #1e2e3e;
+      border-radius: 12px;
+      padding: 16px;
+      font-size: 15px;
+      font-style: italic;
+      color: #cccccc;
+      margin-bottom: 28px;
+    }
+    .status {
+      font-size: 14px;
+      color: #888;
+      margin-bottom: 20px;
+      min-height: 20px;
+    }
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      text-decoration: none;
+      margin-bottom: 12px;
+    }
+    .btn-primary {
+      background: #7dd6f8;
+      color: #0d1e2e;
+    }
+    .btn-secondary {
+      background: transparent;
+      color: #7dd6f8;
+      border: 1px solid #2a3e52;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 10px;
+    }
+    #stores { display: none; }
+    .tagline {
+      color: #666;
+      font-size: 13px;
+      margin-top: 24px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">Stream<span>Sync</span></div>
+
+    <div id="from" class="from" style="display:none;"></div>
+    <img id="poster" class="poster" style="display:none;" alt="" />
+    <div id="title" class="title"></div>
+    <div id="meta" class="meta"></div>
+    <div id="message" class="message" style="display:none;"></div>
+
+    <a id="openApp" class="btn btn-primary" href="#" style="display:none;">Open in StreamSync</a>
+    <div id="status" class="status"></div>
+
+    <div id="stores">
+      <a id="primaryStore" class="btn btn-primary" href="#">Get StreamSync</a>
+      <a id="secondaryStore" class="btn btn-secondary" href="#"></a>
+    </div>
+
+    <div class="tagline">Your streaming schedule, organized.</div>
+  </div>
+
+  <script>
+    var APP_STORE_URL = 'https://apps.apple.com/app/streamsync-show-tracker/id6785055060';
+    var PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=com.gregdilley.StreamSync';
+
+    var params = new URLSearchParams(window.location.search);
+    var type = params.get('type');
+    var id = params.get('id');
+    var title = params.get('title');
+    var poster = params.get('poster');
+    var meta = params.get('meta');
+    var from = params.get('from');
+    var msg = params.get('msg');
+
+    if (title) {
+      document.getElementById('title').textContent = title;
+      document.title = title + ' — StreamSync';
+    }
+    if (meta) document.getElementById('meta').textContent = meta;
+    if (from) {
+      var fromEl = document.getElementById('from');
+      fromEl.textContent = from + ' recommends this';
+      fromEl.style.display = 'block';
+    }
+    if (msg) {
+      var msgEl = document.getElementById('message');
+      msgEl.textContent = '"' + msg + '"';
+      msgEl.style.display = 'block';
+    }
+    if (poster) {
+      var posterEl = document.getElementById('poster');
+      posterEl.src = 'https://image.tmdb.org/t/p/w342' + poster;
+      posterEl.style.display = 'block';
+    }
+
+    var ua = navigator.userAgent || '';
+    var isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+
+    var primary = document.getElementById('primaryStore');
+    var secondary = document.getElementById('secondaryStore');
+    primary.href = isIOS ? APP_STORE_URL : PLAY_STORE_URL;
+    primary.textContent = isIOS ? 'Get StreamSync on the App Store' : 'Get StreamSync on Google Play';
+    secondary.href = isIOS ? PLAY_STORE_URL : APP_STORE_URL;
+    secondary.textContent = isIOS ? 'Android instead?' : 'iPhone instead?';
+
+    var statusEl = document.getElementById('status');
+
+    if (type && id) {
+      var deepLink = 'streamsync:///recommend?type=' + encodeURIComponent(type) + '&id=' + encodeURIComponent(id);
+      if (from) deepLink += '&from=' + encodeURIComponent(from);
+      if (msg) deepLink += '&msg=' + encodeURIComponent(msg);
+
+      // Always show a tappable "Open in StreamSync" button — iOS Safari in
+      // particular often blocks a programmatic redirect to a custom scheme
+      // unless it's triggered by an actual tap, so don't rely on the
+      // automatic attempt below alone.
+      var openAppBtn = document.getElementById('openApp');
+      openAppBtn.href = deepLink;
+      openAppBtn.style.display = 'block';
+
+      statusEl.textContent = 'Opening in StreamSync…';
+      window.location.href = deepLink;
+
+      setTimeout(function () {
+        statusEl.textContent = "Don't have the app yet?";
+        document.getElementById('stores').style.display = 'block';
+      }, 1500);
+    } else {
+      document.getElementById('stores').style.display = 'block';
+    }
+  </script>
+</body>
+</html>
