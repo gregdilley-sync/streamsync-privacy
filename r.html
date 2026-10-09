@@ -114,8 +114,8 @@
 
     <div id="from" class="from" style="display:none;"></div>
     <img id="poster" class="poster" style="display:none;" alt="" />
-    <div id="title" class="title"></div>
-    <div id="meta" class="meta"></div>
+    <div id="title" class="title" style="display:none;"></div>
+    <div id="meta" class="meta" style="display:none;"></div>
     <div id="message" class="message" style="display:none;"></div>
 
     <a id="openApp" class="btn btn-primary" href="#" style="display:none;">Open in StreamSync</a>
@@ -143,10 +143,21 @@
     var msg = params.get('msg');
 
     if (title) {
-      document.getElementById('title').textContent = title;
+      var titleEl = document.getElementById('title');
+      titleEl.textContent = title;
+      titleEl.style.display = 'block';
       document.title = title + ' — StreamSync';
+    } else {
+      // No specific show/movie — this is a plain "check out the app" link.
+      var titleEl2 = document.getElementById('title');
+      titleEl2.textContent = 'Track shows & movies across every service';
+      titleEl2.style.display = 'block';
     }
-    if (meta) document.getElementById('meta').textContent = meta;
+    if (meta) {
+      var metaEl = document.getElementById('meta');
+      metaEl.textContent = meta;
+      metaEl.style.display = 'block';
+    }
     if (from) {
       var fromEl = document.getElementById('from');
       fromEl.textContent = from + ' recommends this';
